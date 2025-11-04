@@ -1,9 +1,9 @@
 import torch.nn as nn
 
-from config import EMBED_DIM, NUM_GROUPS
+from config import TIME_EMBED_DIM, NUM_GROUPS
 
 class AdaGn(nn.Module):
-    def __init__(self, num_channels, num_groups=NUM_GROUPS, embed_dim=EMBED_DIM):
+    def __init__(self, num_channels, num_groups=NUM_GROUPS, embed_dim=TIME_EMBED_DIM):
         """Adaptive Group Normalization layer."""
         super().__init__()
         self.gn = nn.GroupNorm(num_groups, num_channels, affine=False)

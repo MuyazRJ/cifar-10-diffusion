@@ -1,10 +1,10 @@
 import torch.nn as nn
 
 from blocks.adaGn import AdaGn
-from config import EMBED_DIM
+from config import TIME_EMBED_DIM
 
 class ResBlock(nn.Module):
-    def __init__(self, in_channels, dropout, embed_dim=EMBED_DIM):
+    def __init__(self, in_channels, dropout, embed_dim=TIME_EMBED_DIM):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = in_channels
