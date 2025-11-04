@@ -32,12 +32,12 @@ class ImprovedDDPM(nn.Module):
             # Add two ResBlocks
             for _ in range(NUM_RES_BLOCKS):
                 res_layers.append(
-                    ResBlock(in_channels, dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM)
+                    ResBlock(in_channels=in_channels, out_channels=out_channels, dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM)
                 )
                 in_channels = out_channels
 
-            if layer in ATTENTION_LAYERS:
-                res_layers.append(Attention(out_channels))
+                if layer in ATTENTION_LAYERS:
+                    res_layers.append(Attention(out_channels))
 
             # Add Downsample except at last level
             if layer != len(CHANNEL_MULTIPLIERS) - 1:
@@ -45,4 +45,72 @@ class ImprovedDDPM(nn.Module):
 
             # Wrap them so forward(x, t_emb) works automatically
             self.down_blocks.append(TimestepEmbedSequential(*res_layers))
+        
+        self.bottleneck = TimestepEmbedSequential(
+            ResBlock(in_channels, dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM),
+            Attention(in_channels),
+            ResBlock(in_channels, dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM),
+        )
 
+        self.up_blocks = nn.ModuleList()
+        for layer, multiplier in reversed(list(enumerate(CHANNEL_MULTIPLIERS))):
+            out_channels = int(MODEL_CHANNELS * multiplier)
+            res_layers = []
+
+            for i in range(NUM_RES_BLOCKS + 1):
+                # --- First ResBlock merges skip connection ---
+                if i == 0:
+                    res_layers.append(
+                        ResBlock(in_channels + out_channels, out_channels=out_channels,
+                                dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM)
+                    )
+                else:
+                    res_layers.append(
+                        ResBlock(out_channels, out_channels=out_channels,
+                                dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM)
+                    )
+
+                if layer in ATTENTION_LAYERS:
+                    res_layers.append(Attention(out_channels))
+
+            # --- Add Upsample except final level ---
+            if layer != 0:
+                res_layers.append(UpSample(out_channels))
+
+            # Add this level as a timestep-aware sequential
+            self.up_blocks.append(TimestepEmbedSequential(*res_layers))
+
+            # Update for next loop
+            in_channels = out_channels
+
+        self.out = nn.Sequential(
+            nn.GroupNorm(32, in_channels),
+            nn.SiLU(),
+            nn.Conv2d(in_channels, self.image_channels * 2, kernel_size=3, padding=1),
+        )
+    
+    def forward(self, x, t):
+        # Get time embeddings
+        t_emb = self.time_embedding(t)
+
+        # Initial conv
+        x = self.init_conv(x)
+
+        # Downsampling path
+        skip_connections = []
+        for down_block in self.down_blocks:
+            x = down_block(x, t_emb)
+            skip_connections.append(x)
+
+        # Bottleneck
+        x = self.bottleneck(x, t_emb)
+
+        # Upsampling path
+        for up_block in self.up_blocks:
+            skip_x = skip_connections.pop()
+            x = torch.cat([x, skip_x], dim=1)
+            x = up_block(x, t_emb)
+
+        # Final output layer
+        x = self.out(x)
+        return x
