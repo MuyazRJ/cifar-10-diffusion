@@ -5,6 +5,7 @@ from config import MODEL_CHANNELS, TIME_EMBED_DIM, SINUSOIDAL_EMBEDDING_DIM, CHA
 
 from blocks.sample import DownSample, UpSample
 from blocks.bigGan import ResBlock, TimestepEmbedSequential
+from blocks.attention import Attention
 
 class ImprovedDDPM(nn.Module):
     def __init__(self, image_size, image_channels=3):
@@ -35,10 +36,8 @@ class ImprovedDDPM(nn.Module):
                 )
                 in_channels = out_channels
 
-            # Optionally add Attention
             if layer in ATTENTION_LAYERS:
-                #res_layers.append(AttentionBlock(out_channels))
-                pass
+                res_layers.append(Attention(out_channels))
 
             # Add Downsample except at last level
             if layer != len(CHANNEL_MULTIPLIERS) - 1:
