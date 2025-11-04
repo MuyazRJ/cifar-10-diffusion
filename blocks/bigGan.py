@@ -3,6 +3,15 @@ import torch.nn as nn
 from blocks.adaGn import AdaGn
 from config import TIME_EMBED_DIM
 
+class TimestepEmbedSequential(nn.Sequential):
+    def forward(self, x, t_emb):
+        for layer in self:
+            if isinstance(layer, ResBlock):
+                x = layer(x, t_emb)
+            else:
+                x = layer(x)
+        return x
+
 class ResBlock(nn.Module):
     def __init__(self, in_channels, dropout, embed_dim=TIME_EMBED_DIM):
         super().__init__()
