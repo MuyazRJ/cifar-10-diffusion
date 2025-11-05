@@ -1,8 +1,7 @@
 import torch
 
-from config import alpha_bars
 
-def q_sample(x0, t):
+def q_sample(x0, t, alpha_bars):
     """
     Forward diffusion (q-sample) step: adds noise to x0 at timestep t.
     

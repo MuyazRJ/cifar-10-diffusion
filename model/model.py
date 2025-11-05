@@ -8,12 +8,10 @@ from blocks.bigGan import ResBlock, TimestepEmbedSequential
 from blocks.attention import Attention
 
 class ImprovedDDPM(nn.Module):
-    def __init__(self, image_size, image_channels=3):
+    def __init__(self, image_channels=3):
         super().__init__()
 
-        self.image_size = image_size
         self.image_channels = image_channels
-        
         self.time_embedding = nn.Sequential(
             nn.Linear(SINUSOIDAL_EMBEDDING_DIM, TIME_EMBED_DIM),
             nn.SiLU(),
@@ -38,13 +36,13 @@ class ImprovedDDPM(nn.Module):
 
                 if layer in ATTENTION_LAYERS:
                     res_layers.append(Attention(out_channels))
+            
+            self.down_blocks.append(TimestepEmbedSequential(*res_layers))
 
             # Add Downsample except at last level
             if layer != len(CHANNEL_MULTIPLIERS) - 1:
-                res_layers.append(DownSample(out_channels))
+                self.down_blocks.append(DownSample(out_channels))
 
-            # Wrap them so forward(x, t_emb) works automatically
-            self.down_blocks.append(TimestepEmbedSequential(*res_layers))
         
         self.bottleneck = TimestepEmbedSequential(
             ResBlock(in_channels, dropout=DROPOUT_RATE, embed_dim=TIME_EMBED_DIM),
@@ -99,8 +97,11 @@ class ImprovedDDPM(nn.Module):
         # Downsampling path
         skip_connections = []
         for down_block in self.down_blocks:
-            x = down_block(x, t_emb)
-            skip_connections.append(x)
+            if not isinstance(down_block, DownSample):
+                x = down_block(x, t_emb)
+                skip_connections.append(x)
+            else:
+                x = down_block(x)
 
         # Bottleneck
         x = self.bottleneck(x, t_emb)
@@ -110,6 +111,7 @@ class ImprovedDDPM(nn.Module):
             skip_x = skip_connections.pop()
             x = torch.cat([x, skip_x], dim=1)
             x = up_block(x, t_emb)
+            
 
         # Final output layer
         x = self.out(x)

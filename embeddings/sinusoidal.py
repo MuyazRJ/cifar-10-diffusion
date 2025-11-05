@@ -24,7 +24,7 @@ class SinusoidalTimeEmbedding(nn.Module):
         Create sinusoidal embeddings for integer timesteps.
 
         Args:
-            timesteps (torch.Tensor): Shape (B,) — integer timestep values (1–1000).
+            timesteps (torch.Tensor): Shape (B,) — integer timestep values.
 
         Returns:
             torch.Tensor: Shape (B, embed_dim) — sinusoidal embeddings.
