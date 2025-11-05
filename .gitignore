@@ -1,0 +1,50 @@
+# -----------------------------
+# Python cache & build files
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+
+# -----------------------------
+# IDE / editor settings
+# -----------------------------
+.vscode/
+.idea/
+.DS_Store
+
+# -----------------------------
+# Environment & logs
+# -----------------------------
+.env
+.venv/
+*.log
+*.out
+*.err
+
+# -----------------------------
+# Model outputs / checkpoints
+# -----------------------------
+runs/
+checkpoints/
+samples/
+outputs/
+wandb/
+tensorboard/
+
+# -----------------------------
+# Data files
+# -----------------------------
+cifar-10-batches-py/
+
+# -----------------------------
+# Misc
+# -----------------------------
+*.zip
+*.tar
+*.tar.gz
+*.npy
