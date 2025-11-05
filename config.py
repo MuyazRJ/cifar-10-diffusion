@@ -17,3 +17,9 @@ NUM_RES_BLOCKS = 2
 
 # Schedule type
 BETA_SCHEDULE = "cosine"
+BETA_START = 1e-4
+BETA_END = 0.02
+NUM_DIFFUSION_STEPS = 1000
+
+# Data settings
+BATCH_SIZE = 128
