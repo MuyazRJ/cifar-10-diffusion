@@ -72,12 +72,13 @@ def main():
             optimizer.step()
 
             progress = 100 * (batch_idx + 1) / len(train_loader)
-            bucket = int(progress // 20)
+            bucket = int(progress // 50) # Update every 50% progress
 
             if bucket != last_bucket:
                 last_bucket = bucket
                 cos = F.cosine_similarity(eps_pred.flatten(), noise.flatten(), dim=0)
-                print(f"Epoch {epoch} | {progress:.1f}% | Loss {loss.item():.4f} | Cos {cos.item():.3f}")
+                now = datetime.now().strftime("%H:%M:%S")
+                print(f"[{now}] Epoch {epoch} | {progress:.1f}% | Loss {loss.item():.4f} | Cos {cos.item():.3f}")
 
         if epoch % 10 == 0 or epoch == EPOCHS - 1:
             model.eval()   # <--- VERY IMPORTANT
