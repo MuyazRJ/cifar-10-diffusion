@@ -3,7 +3,7 @@ import os
 
 import torch.nn.functional as F
 
-from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN, RESUME_TRAINING
+from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN, RESUME_TRAINING, FILENAME
 from data.load import get_cifar10_dataloader
 
 from diffusion.schedules import compute_alphas, make_beta_schedule
@@ -37,7 +37,7 @@ def main():
     start_epoch = 0
 
     if RESUME_TRAINING:
-        model, optimizer, start_epoch = load_model_and_optimizer(model, optimizer)
+        model, optimizer, start_epoch = load_model_and_optimizer(model, optimizer, FILENAME)
 
     for epoch in range(start_epoch, EPOCHS):
         model.train()

@@ -11,7 +11,6 @@ NUM_GROUPS = 32
 LEARNING_RATE = 1e-4
 DROPOUT_RATE = 0.1
 EPOCHS = 100
-RESUME_TRAINING = False  # Set to True to resume training from a checkpoint
 
 # Model architecture settings
 MODEL_CHANNELS = 64
@@ -34,3 +33,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # Output directory
 SAVE_DIR = "./model_params"
 SAVE_DIR_TRAIN = "./model_checkpoints"
+
+# Load model settings
+FILENAME = None  # Specify checkpoint filename to load, or None to load the latest
+RESUME_TRAINING = False  # Set to True to resume training from a checkpoint
