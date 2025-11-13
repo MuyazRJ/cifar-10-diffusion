@@ -41,6 +41,7 @@ def main():
 
     for epoch in range(start_epoch, EPOCHS):
         model.train()
+        last_bucket = -1  
         for  batch_idx, (images, _) in enumerate(train_loader):
             images = images.to(DEVICE)
             batch_size = images.size(0)
@@ -71,9 +72,12 @@ def main():
             optimizer.step()
 
             progress = 100 * (batch_idx + 1) / len(train_loader)
-            
-            cos = F.cosine_similarity(eps_pred.flatten(), noise.flatten(), dim=0)
-            print(f"Batch {epoch} | Loss {loss.item():.4f} | ε cosine similarity: {cos.item():.3f} | Progress: {progress:.1f}% ")
+            bucket = int(progress // 20)
+
+            if bucket != last_bucket:
+                last_bucket = bucket
+                cos = F.cosine_similarity(eps_pred.flatten(), noise.flatten(), dim=0)
+                print(f"Epoch {epoch} | {progress:.1f}% | Loss {loss.item():.4f} | Cos {cos.item():.3f}")
 
         if epoch % 10 == 0 or epoch == EPOCHS - 1:
             model.eval()   # <--- VERY IMPORTANT
