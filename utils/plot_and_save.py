@@ -3,7 +3,7 @@ import math
 import torch
 import matplotlib.pyplot as plt
 
-def save_image_grid(images: torch.Tensor, step: int, out_dir: str = "outputs", nrow: int = 10, show: bool = False):
+def save_image_grid(images: torch.Tensor, step: int = 1, out_dir: str = "outputs", nrow: int = 10, show: bool = False):
     """
     Save a grid of images using matplotlib.
 

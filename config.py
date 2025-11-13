@@ -11,10 +11,11 @@ NUM_GROUPS = 32
 LEARNING_RATE = 1e-4
 DROPOUT_RATE = 0.1
 EPOCHS = 100
+RESUME_TRAINING = False  # Set to True to resume training from a checkpoint
 
 # Model architecture settings
 MODEL_CHANNELS = 64
-CHANNEL_MULTIPLIERS = [1, 2, 4, 8]
+CHANNEL_MULTIPLIERS = [1, 2, 4, 4]
 ATTENTION_LAYERS = [1, 2, 3]  # Layers at which attention is applied
 NUM_RES_BLOCKS = 2
 
@@ -25,7 +26,11 @@ BETA_END = 0.02
 NUM_DIFFUSION_STEPS = 1000
 
 # Data settings
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 
 # Device configuration
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+# Output directory
+SAVE_DIR = "./model_params"
+SAVE_DIR_TRAIN = "./model_checkpoints"
