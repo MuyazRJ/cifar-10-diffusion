@@ -1,14 +1,19 @@
-import torch 
+import torch
+import os
 
-from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, BATCH_SIZE
+import torch.nn.functional as F
+
+from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN
 from data.load import get_cifar10_dataloader
 
 from diffusion.schedules import compute_alphas, make_beta_schedule
 from diffusion.forward import q_sample
+from diffusion.reverse import reverse  
 
 from utils.plot_and_save import save_image_grid
 from embeddings.sinusoidal import SinusoidalTimeEmbedding
 
+from datetime import datetime
 from model.model import ImprovedDDPM
 
 def main():
@@ -17,7 +22,7 @@ def main():
 
     train_loader = get_cifar10_dataloader() 
 
-    model = ImprovedDDPM()
+    model = ImprovedDDPM().to(DEVICE)
     criterion = torch.nn.MSELoss()
     
     optimizer = torch.optim.AdamW(
@@ -30,6 +35,7 @@ def main():
     embedder = SinusoidalTimeEmbedding()
 
     for epoch in range(EPOCHS):
+        model.train()
         for  batch_idx, (images, _) in enumerate(train_loader):
             images = images.to(DEVICE)
             batch_size = images.size(0)
@@ -59,11 +65,35 @@ def main():
             loss.backward()
             optimizer.step()
 
-            if batch_idx % 100 == 0:
-                print(f"Epoch [{epoch+1}/{EPOCHS}] | Progress: {progress:.1f}% | Loss: {loss.item():.6f}")
-            
             progress = 100 * (batch_idx + 1) / len(train_loader)
-            print(f"Epoch [{epoch+1}/{EPOCHS}] | Progress: {progress:.1f}% | Loss: {loss.item():.6f}")
+            
+            cos = F.cosine_similarity(eps_pred.flatten(), noise.flatten(), dim=0)
+            print(f"Batch {epoch} | Loss {loss.item():.4f} | ε cosine similarity: {cos.item():.3f} | Progress: {progress:.1f}% ")
+
+        if epoch % 10 == 0 or epoch == EPOCHS - 1:
+            model.eval()   # <--- VERY IMPORTANT
+            with torch.no_grad():
+                image = reverse(model, NUM_DIFFUSION_STEPS, (1, 3, 32, 32), alphas, alpha_bars, DEVICE)
+            save_image_grid(image, epoch)
+
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            save_path = f"{SAVE_DIR_TRAIN}/model_epoch_{epoch}_{timestamp}.pt"
+
+            torch.save({
+                "epoch": epoch,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+            }, save_path)
+
+
+    os.makedirs(SAVE_DIR, exist_ok=True)
+    save_path = os.path.join(SAVE_DIR, "final_ddpm.pt")
+    torch.save({
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    }, save_path)
+
+    print(f"\n✅ Training complete! Model saved to {SAVE_DIR}")
 
 
 

@@ -1,5 +1,8 @@
 import torch 
 
+from embeddings.sinusoidal import SinusoidalTimeEmbedding
+from config import DEVICE
+
 """def p_sample(model, x_t, t, alphas, alpha_bars):
     
     Single reverse diffusion step.
@@ -31,7 +34,7 @@ import torch
 
 import torch"""
 
-def p_sample(model, x_t, t, alphas, alpha_bars):
+def p_sample(model, x_t, t, alphas, alpha_bars, t_embeddings):
     """
     Single reverse diffusion step.
     Implements the ADM (Improved DDPM) variance parameterization.
@@ -43,7 +46,7 @@ def p_sample(model, x_t, t, alphas, alpha_bars):
 
     with torch.no_grad():
         # 1. Predict ε and v
-        out = model(x_t, t)
+        out = model(x_t, t_embeddings)
         eps_pred, v_pred = torch.chunk(out, 2, dim=1)
 
         # 2. Compute posterior mean μθ(x_t, t)
@@ -79,9 +82,12 @@ def reverse(model, T, shape, alphas, alpha_bars, device):
     model predicts both ε and log variance (σ²).
     """
     x_t = torch.randn(shape, device=device)
+    embedder = SinusoidalTimeEmbedding()
 
     for t in reversed(range(T)):
-        x_t = p_sample(model, x_t, t, alphas, alpha_bars)
+        t_tensor = torch.tensor([t], device=device).long()
+        t_embeddings = embedder(t_tensor).to(DEVICE)
+        x_t = p_sample(model, x_t, t, alphas, alpha_bars, t_embeddings)
     
     # Map back from [-1,1] to [0,1]
     x_t = x_t.clamp(-1, 1)
