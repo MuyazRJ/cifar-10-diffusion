@@ -3,7 +3,7 @@ import os
 
 import torch.nn.functional as F
 
-from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN
+from config import NUM_DIFFUSION_STEPS, BETA_START, BETA_END, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN, RESUME_TRAINING
 from data.load import get_cifar10_dataloader
 
 from diffusion.schedules import compute_alphas, make_beta_schedule
@@ -11,6 +11,7 @@ from diffusion.forward import q_sample
 from diffusion.reverse import reverse  
 
 from utils.plot_and_save import save_image_grid
+from utils.load_model import load_model_and_optimizer
 from embeddings.sinusoidal import SinusoidalTimeEmbedding
 
 from datetime import datetime
@@ -33,8 +34,12 @@ def main():
     )
 
     embedder = SinusoidalTimeEmbedding()
+    start_epoch = 0
 
-    for epoch in range(EPOCHS):
+    if RESUME_TRAINING:
+        model, optimizer, start_epoch = load_model_and_optimizer(model, optimizer)
+
+    for epoch in range(start_epoch, EPOCHS):
         model.train()
         for  batch_idx, (images, _) in enumerate(train_loader):
             images = images.to(DEVICE)
