@@ -48,3 +48,8 @@ cifar-10-batches-py/
 *.tar
 *.tar.gz
 *.npy
+
+# -----------------------------
+# PyTorch model files
+# -----------------------------
+*.pt
