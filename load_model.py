@@ -27,4 +27,4 @@ alphas, alpha_bars = compute_alphas(betas)
 
 image = reverse(model, NUM_DIFFUSION_STEPS,  (1, 3, 32, 32), alphas, alpha_bars, DEVICE)
 
-save_image_grid(image)
+save_image_grid(image, show=True)
