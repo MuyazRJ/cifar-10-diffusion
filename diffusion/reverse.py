@@ -39,12 +39,12 @@ def reverse(model, alphas, alpha_bars, betas, T, num_images=1, labels=None):
         coef2 = (torch.sqrt(alpha_t) * (1 - alpha_bar_prev)) / (1 - alpha_bar_t)
         mean = coef1 * x0_pred + coef2 * x_t
 
-        # ========== Fixed variance σ_t² ==========
+        # ========== Learned variance σ_t² ==========
         tilde_beta_t = beta_t * (1 - alpha_bar_prev) / (1 - alpha_bar_t)
 
         frac = (var_raw + 1) / 2
         frac = frac.clamp(0, 1)
-        
+
         min_log = torch.log(tilde_beta_t)
         max_log = torch.log(beta_t)
 
