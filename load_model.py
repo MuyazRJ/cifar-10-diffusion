@@ -9,9 +9,8 @@ from diffusion.reverse import reverse
 from diffusion.schedules import compute_alphas, make_beta_schedule
 
 from utils.plot_and_save import save_image_grid
-from data.cifar_classes import plot_images_by_class
 
-path = "./model_checkpoints/16-11-2025_20-50/epoch_99.pt"
+path = "./model_params/final_ddpm.pt"
 
 # 1️⃣ Create a new instance of your model and optimizer
 model = ImprovedDDPM().to(DEVICE)
