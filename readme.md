@@ -91,16 +91,19 @@ The script:
 ## Key Formulas
 
 Beta schedule (cosine improved DDPM) converts cumulative α product to betas:
-beta_t = 1 - (bar_alpha_{t+1} / bar_alpha_t)
+
+$$
+\beta_t = 1 - \frac{\bar{\alpha}_{t+1}}{\bar{\alpha}_t}
+$$
 
 Implemented in:  
 `diffusion/schedules.make_beta_schedule`
 
 ## Forward Diffusion (q_sample)
 
-\[
+$$
 x_t = \sqrt{\bar{\alpha}_t}\, x_0 + \sqrt{1 - \bar{\alpha}_t}\, \epsilon
-\]
+$$
 
 Implemented in:  
 `diffusion/forward.q_sample`
@@ -109,12 +112,12 @@ Implemented in:
 
 ## Reverse Diffusion Posterior Mean
 
-\[
+$$
 \mu_t =
 \frac{\sqrt{\bar{\alpha}_{t-1}}\, \beta_t}{1 - \bar{\alpha}_t}\, \hat{x}_0
 \;+\;
-\frac{\sqrt{\alpha_t}\, (1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\, x_t
-\]
+\frac{\sqrt{\alpha_t}\,(1 - \bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t}\, x_t
+$$
 
 Implemented in:  
 `diffusion/reverse.reverse`
