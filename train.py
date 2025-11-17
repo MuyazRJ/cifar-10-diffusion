@@ -4,7 +4,7 @@ import os
 import torch.nn.functional as F
 from torch.amp import GradScaler, autocast   # <--- updated import
 
-from config import NUM_DIFFUSION_STEPS, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN, RESUME_TRAINING, FILENAME, LEARNING_RATE, EMA_DECAY, GLOBAL_STEP_EMA, IMAGE_OUT_DIR, IMAGE_CLASSES
+from config import NUM_DIFFUSION_STEPS, EPOCHS, DEVICE, SAVE_DIR, SAVE_DIR_TRAIN, RESUME_TRAINING, FILENAME, LEARNING_RATE, EMA_DECAY, GLOBAL_STEP_EMA, IMAGE_OUT_DIR, IMAGE_CLASSES, KL_WEIGHT
 from data.load import get_cifar10_dataloader, get_mnist_dataloader
 
 from diffusion.schedules import compute_alphas, make_beta_schedule
@@ -76,8 +76,38 @@ def main():
 
             # 3️⃣ Forward pass with AMP
             with autocast(device_type=DEVICE):
-                out = model(noisy_images, t, label)
-                loss = criterion(out, noise)
+                # Model now outputs TWO things: (eps_pred, var_raw)
+                eps_pred, var_raw = model(noisy_images, t, label)
+
+                mse_loss = F.mse_loss(eps_pred, noise)
+                
+                # map raw var prediction [-1,1] → [0,1]
+                frac = (var_raw + 1) / 2
+                frac = frac.clamp(0,1)
+
+                # get per-sample beta_t values
+                beta_t = betas[t].view(-1, 1, 1, 1)
+                alpha_bar_t = alpha_bars[t].view(-1, 1, 1, 1)
+
+                # compute alpha_bar_prev safely
+                alpha_bar_prev = alpha_bars[(t - 1).clamp(min=0)].view(-1,1,1,1)
+
+                # posterior variance (tilde beta)
+                tilde_beta_t = beta_t * (1 - alpha_bar_prev) / (1 - alpha_bar_t)
+
+                # bounds for variance (exact 2021 logic)
+                min_log = torch.log(tilde_beta_t)
+                max_log = torch.log(beta_t)
+
+                # predicted log σ²_t
+                model_log_sigma2 = frac * max_log + (1 - frac) * min_log
+
+                # Variational KL term between true and predicted variance
+                # KL(N(0, σ²_true) || N(0, σ²_pred))
+                kl_loss = 0.5 * (model_log_sigma2 - min_log).mean()
+
+                # Weight for KL (small weight gives stable results)
+                loss = mse_loss + KL_WEIGHT * kl_loss
 
             # 4️⃣ Backward + step with AMP
             scaler.scale(loss).backward()

@@ -91,7 +91,7 @@ class ImprovedDDPM(nn.Module):
         self.out = nn.Sequential(
             nn.GroupNorm(32, in_channels),
             nn.SiLU(),
-            nn.Conv2d(in_channels, self.image_channels, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, self.image_channels * 2, kernel_size=3, padding=1),
         )
     
     def forward(self, x, t, c):
@@ -123,4 +123,8 @@ class ImprovedDDPM(nn.Module):
 
         # Final output layer
         x = self.out(x)
-        return x
+
+        eps_pred, var_raw = torch.split(x, self.image_channels, dim=1)
+        var_raw = torch.tanh(var_raw)
+        
+        return eps_pred, var_raw

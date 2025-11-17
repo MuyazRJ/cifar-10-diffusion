@@ -17,7 +17,7 @@ def reverse(model, alphas, alpha_bars, betas, T, num_images=1, labels=None):
         t_tensor = torch.full((num_images,), t, device=DEVICE, dtype=torch.long)
 
         with torch.no_grad():
-            eps_pred = model(x_t, t_tensor, labels)
+            eps_pred, var_raw = model(x_t, t_tensor, labels)
 
         # === OpenAI 2021: Predict x0 ===
         alpha_bar_t = alpha_bars[t].view(1,1,1,1)
@@ -42,9 +42,18 @@ def reverse(model, alphas, alpha_bars, betas, T, num_images=1, labels=None):
         # ========== Fixed variance σ_t² ==========
         tilde_beta_t = beta_t * (1 - alpha_bar_prev) / (1 - alpha_bar_t)
 
+        frac = (var_raw + 1) / 2
+        frac = frac.clamp(0, 1)
+        
+        min_log = torch.log(tilde_beta_t)
+        max_log = torch.log(beta_t)
+
+        model_log_sigma2 = frac * max_log + (1 - frac) * min_log
+        model_sigma2 = torch.exp(model_log_sigma2)
+
         if t > 0:
             noise = torch.randn_like(x_t)
-            x_t = mean + torch.sqrt(tilde_beta_t) * noise
+            x_t = mean + torch.sqrt(model_sigma2) * noise
         else:
             x_t = mean
 

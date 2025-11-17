@@ -9,8 +9,6 @@ def save_image_grid(images, out_dir, nrow=10, show=False):
     """
     Save a grid of images exactly as they are (NO normalization).
     """
-    os.makedirs(out_dir, exist_ok=True)
-
     images = images.detach().cpu()
     B, C, H, W = images.shape
 

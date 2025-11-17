@@ -11,6 +11,7 @@ NUM_GROUPS = 32
 LEARNING_RATE = 1e-4
 DROPOUT_RATE = 0.0
 EPOCHS = 100
+KL_WEIGHT = 1.0
 
 # Model architecture settings
 MODEL_CHANNELS = 128
