@@ -1,41 +1,53 @@
 import os
 import math
-import torch
 import matplotlib.pyplot as plt
 
-def save_image_grid(images: torch.Tensor, step: int = 1, out_dir: str = "outputs", nrow: int = 10, show: bool = False):
-    """
-    Save a grid of images using matplotlib.
+from datetime import datetime
 
-    Args:
-        images (torch.Tensor): Tensor of shape [B, C, H, W], values in [-1, 1].
-        step (int): Current training step or epoch number.
-        out_dir (str): Directory where images are saved.
-        nrow (int): Number of images per row in the grid.
-        show (bool): If True, display the figure inline (e.g. in Jupyter).
+
+def save_image_grid(images, out_dir, nrow=10, show=False):
+    """
+    Save a grid of images exactly as they are (NO normalization).
     """
     os.makedirs(out_dir, exist_ok=True)
-    images = images.detach().cpu().clamp(-1, 1)
-    images = (images + 1) / 2  # normalize to [0, 1]
+
+    images = images.detach().cpu()
     B, C, H, W = images.shape
 
     ncol = math.ceil(B / nrow)
     fig, axes = plt.subplots(ncol, nrow, figsize=(nrow, ncol))
 
-    # Handle if number of images < grid cells
-    for ax in axes.flat:
-        ax.axis("off")
+    # Normalize axes into a 2D list for consistent indexing
+    if ncol == 1 and nrow == 1:
+        axes = [[axes]]
+    elif ncol == 1:
+        axes = [axes]          # wrap row
+    elif nrow == 1:
+        axes = [[ax] for ax in axes]  # wrap column
 
+    # Turn all axes off first
+    for row in axes:
+        for ax in row:
+            ax.axis("off")
+
+    # Fill the grid
     for i, img in enumerate(images):
         r, c = divmod(i, nrow)
-        ax = axes[r][c] if ncol > 1 else axes[c]
-        img = img.permute(1, 2, 0).numpy()  # CHW → HWC
-        ax.imshow(img)
+        ax = axes[r][c]
+
+        img = img.permute(1, 2, 0).numpy()
+
+        if C == 1:
+            ax.imshow(img.squeeze(), cmap="gray")
+        else:
+            ax.imshow(img)
+
         ax.axis("off")
 
     plt.subplots_adjust(wspace=0.02, hspace=0.02)
-    save_path = os.path.join(out_dir, f"step_{step:04d}.png")
-    plt.savefig(save_path, bbox_inches="tight", pad_inches=0.05)
+    plt.savefig(out_dir, bbox_inches="tight", pad_inches=0.05)
+
     if show:
         plt.show()
+
     plt.close(fig)

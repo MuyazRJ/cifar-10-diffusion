@@ -1,15 +1,20 @@
 import torch
 import torch.nn as nn
 
-from config import MODEL_CHANNELS, TIME_EMBED_DIM, SINUSOIDAL_EMBEDDING_DIM, CHANNEL_MULTIPLIERS, NUM_RES_BLOCKS, DROPOUT_RATE, ATTENTION_LAYERS
+from config import MODEL_CHANNELS, TIME_EMBED_DIM, SINUSOIDAL_EMBEDDING_DIM, CHANNEL_MULTIPLIERS, NUM_RES_BLOCKS, DROPOUT_RATE, ATTENTION_LAYERS, IMAGE_CLASSES
+
 
 from blocks.sample import DownSample, UpSample
 from blocks.bigGan import ResBlock, TimestepEmbedSequential
 from blocks.attention import Attention
 
+from embeddings.sinusoidal import SinusoidalTimeEmbedding
+
 class ImprovedDDPM(nn.Module):
-    def __init__(self, image_channels=3):
+    def __init__(self, image_channels: int=3):
         super().__init__()
+
+        self.embedder = SinusoidalTimeEmbedding()
 
         self.image_channels = image_channels
         self.time_embedding = nn.Sequential(
@@ -17,6 +22,8 @@ class ImprovedDDPM(nn.Module):
             nn.SiLU(),
             nn.Linear(TIME_EMBED_DIM, TIME_EMBED_DIM),
         )
+
+        self.class_embedding = nn.Embedding(IMAGE_CLASSES, TIME_EMBED_DIM)  # For class conditioning
 
         # Initial convolution maps input image to model channels
         in_channels = int(MODEL_CHANNELS * CHANNEL_MULTIPLIERS[0])
@@ -84,12 +91,13 @@ class ImprovedDDPM(nn.Module):
         self.out = nn.Sequential(
             nn.GroupNorm(32, in_channels),
             nn.SiLU(),
-            nn.Conv2d(in_channels, self.image_channels * 2, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels, self.image_channels, kernel_size=3, padding=1),
         )
     
-    def forward(self, x, t):
+    def forward(self, x, t, c):
         # Get time embeddings
-        t_emb = self.time_embedding(t)
+        t = self.embedder(t)
+        t_emb = self.time_embedding(t) + self.class_embedding(c)  # Combine time and class embeddings
 
         # Initial conv
         x = self.init_conv(x)

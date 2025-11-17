@@ -3,7 +3,7 @@ import torch
 import math 
 
 class Attention(nn.Module):
-    def __init__(self, channels, num_heads=2):
+    def __init__(self, channels, num_heads=4):
         super().__init__()
 
         self.channels  = channels

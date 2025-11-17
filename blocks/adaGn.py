@@ -8,13 +8,13 @@ class AdaGn(nn.Module):
         super().__init__()
         self.gn = nn.GroupNorm(num_groups, num_channels, affine=False)
         self.linear = nn.Linear(embed_dim, num_channels * 2)
-        nn.init.zeros_(self.linear.weight)
-        nn.init.zeros_(self.linear.bias)
+        nn.init.normal_(self.linear.weight, mean=0.0, std=0.02)
+        nn.init.constant_(self.linear.bias, 0.0)
 
-    def forward(self, x, t_emb):
+    def forward(self, x, emb):
         """Forward pass of AdaGn."""
         # t_emb: [B, embed_dim]
-        scale, shift = self.linear(t_emb).chunk(2, dim=1)
+        scale, shift = self.linear(emb).chunk(2, dim=1)
         scale = scale[:, :, None, None]
         shift = shift[:, :, None, None]
         x = self.gn(x)

@@ -49,3 +49,4 @@ class SinusoidalTimeEmbedding(nn.Module):
             emb = torch.cat([emb, torch.zeros_like(emb[:, :1])], dim=-1)
 
         return emb
+
