@@ -10,7 +10,7 @@ NUM_GROUPS = 32
 # Training hyperparameters
 LEARNING_RATE = 1e-4
 DROPOUT_RATE = 0.0
-EPOCHS = 100
+EPOCHS = 150
 KL_WEIGHT = 1.0
 
 # Model architecture settings

@@ -79,7 +79,7 @@ def main():
                 # Model now outputs TWO things: (eps_pred, var_raw)
                 eps_pred, var_raw = model(noisy_images, t, label)
 
-                mse_loss = F.mse_loss(eps_pred, noise)
+                mse_loss = criterion(eps_pred, noise)
                 
                 # map raw var prediction [-1,1] → [0,1]
                 frac = (var_raw + 1) / 2
@@ -128,7 +128,7 @@ def main():
             progress = 100 * (batch_idx + 1) / len(train_loader)
             bucket = int(progress // 50)
 
-            if bucket != last_bucket:
+            if bucket != last_bucket and bucket > 0:
                 last_bucket = bucket
                 now = datetime.now().strftime("%H:%M:%S")
                 print(f"[{now}] Epoch {epoch} | {progress:.1f}% | Loss {loss.item():.4f}")
