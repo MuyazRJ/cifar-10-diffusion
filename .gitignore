@@ -53,3 +53,4 @@ cifar-10-batches-py/
 # PyTorch model files
 # -----------------------------
 *.pt
+fid_samples
