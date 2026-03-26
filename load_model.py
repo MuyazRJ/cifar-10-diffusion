@@ -10,7 +10,7 @@ from diffusion.schedules import compute_alphas, make_beta_schedule
 
 from utils.plot_and_save import save_image_grid
 
-path = "./model_params/final_ddpm.pt"
+path = "./model_dict/final_ddpm.pt"
 
 # 1️⃣ Create a new instance of your model and optimizer
 model = ImprovedDDPM().to(DEVICE)
@@ -31,7 +31,7 @@ print(f"✅ Model and optimizer successfully loaded from {path}")
 betas = make_beta_schedule("cosine", num_steps=NUM_DIFFUSION_STEPS, start=BETA_START, end=BETA_END).to(DEVICE).float()
 alphas, alpha_bars = compute_alphas(betas)
 
-images_per_class = 10
+images_per_class = 1
 labels = torch.arange(IMAGE_CLASSES).repeat_interleave(images_per_class).to(DEVICE)
 
 images = reverse(ema_model.ema_model, alphas, alpha_bars, betas, NUM_DIFFUSION_STEPS, num_images=len(labels), labels=labels)
