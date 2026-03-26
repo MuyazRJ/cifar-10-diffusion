@@ -1,3 +1,17 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# BigGAN-style residual block and timestep-aware sequential container.
+# ResBlock uses Adaptive Group Norm to condition each block on the timestep embedding,
+# with a skip connection to improve gradient flow through deep networks.
+#
+# Based on:
+# - Brock et al., "Large Scale GAN Training", ICLR 2019
+#   https://arxiv.org/abs/1809.11096
+# - Nichol & Dhariwal, "Improved Denoising Diffusion Probabilistic Models", ICML 2021
+#   https://arxiv.org/abs/2102.09672
+
 import torch.nn as nn
 
 from blocks.adaGn import AdaGn

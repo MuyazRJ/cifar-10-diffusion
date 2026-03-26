@@ -1,3 +1,11 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Downsampling and upsampling blocks for the U-Net encoder and decoder paths.
+# DownSample halves spatial resolution via strided convolution.
+# UpSample doubles spatial resolution via nearest-neighbour interpolation followed by a conv.
+
 import torch.nn as nn
 from torch.nn import functional as F
 

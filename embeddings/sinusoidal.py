@@ -1,3 +1,17 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Sinusoidal timestep embedding module.
+# Maps scalar timestep values to fixed-frequency sinusoidal vectors used to
+# condition the denoising U-Net on the current noise level.
+#
+# Based on:
+# - Vaswani et al., "Attention Is All You Need", NeurIPS 2017
+#   https://arxiv.org/abs/1706.03762
+# - Ho et al., "Denoising Diffusion Probabilistic Models", NeurIPS 2020
+#   https://arxiv.org/abs/2006.11239
+
 import math
 import torch
 import torch.nn as nn

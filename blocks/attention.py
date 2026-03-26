@@ -1,3 +1,15 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Self-attention block for the diffusion U-Net.
+# Applied at selected resolutions to capture long-range spatial dependencies.
+#
+# QKVAttention adapted from:
+# - OpenAI guided-diffusion, https://github.com/openai/guided-diffusion
+# - Vaswani et al., "Attention Is All You Need", NeurIPS 2017
+#   https://arxiv.org/abs/1706.03762
+
 import torch.nn as nn 
 import torch
 import math 

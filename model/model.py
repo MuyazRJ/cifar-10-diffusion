@@ -1,3 +1,18 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Improved DDPM U-Net denoiser for CIFAR-10.
+# Class-conditional model that predicts both the noise and a learned variance signal.
+# Architecture follows a symmetric encoder-decoder with skip connections, BigGAN-style
+# residual blocks, self-attention at selected resolutions, and combined time + class conditioning.
+#
+# Based on:
+# - Ho et al., "Denoising Diffusion Probabilistic Models", NeurIPS 2020
+#   https://arxiv.org/abs/2006.11239
+# - Nichol & Dhariwal, "Improved Denoising Diffusion Probabilistic Models", ICML 2021
+#   https://arxiv.org/abs/2102.09672
+
 import torch
 import torch.nn as nn
 

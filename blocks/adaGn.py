@@ -1,3 +1,14 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Adaptive Group Normalisation — injects timestep conditioning into feature maps
+# by predicting per-channel scale and shift values from the timestep embedding.
+#
+# Based on:
+# - Nichol & Dhariwal, "Improved Denoising Diffusion Probabilistic Models", ICML 2021
+#   https://arxiv.org/abs/2102.09672
+
 import torch.nn as nn
 
 from config import TIME_EMBED_DIM, NUM_GROUPS

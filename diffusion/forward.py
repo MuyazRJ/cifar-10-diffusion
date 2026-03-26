@@ -1,3 +1,15 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Forward diffusion process — adds Gaussian noise to a clean image at timestep t.
+# Uses the closed-form one-step construction so noisy samples can be produced
+# directly without simulating t separate steps.
+#
+# Based on:
+# - Ho et al., "Denoising Diffusion Probabilistic Models", NeurIPS 2020
+#   https://arxiv.org/abs/2006.11239
+
 import torch
 
 

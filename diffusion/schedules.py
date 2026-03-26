@@ -1,3 +1,14 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Noise schedule construction for diffusion training.
+# Supports linear and cosine beta schedules, and derives cumulative alpha products.
+#
+# Cosine schedule based on:
+# - Nichol & Dhariwal, "Improved Denoising Diffusion Probabilistic Models", ICML 2021
+#   https://arxiv.org/abs/2102.09672
+
 import torch, math
 
 def make_beta_schedule(schedule_type, num_steps, start=None, end=None):

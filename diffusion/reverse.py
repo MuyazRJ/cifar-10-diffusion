@@ -1,3 +1,17 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Reverse diffusion sampling loop for the Improved DDPM on CIFAR-10.
+# Iterates from t=T-1 to t=0, predicting the posterior mean and learned
+# variance at each step to progressively denoise from pure Gaussian noise.
+#
+# Based on:
+# - Ho et al., "Denoising Diffusion Probabilistic Models", NeurIPS 2020
+#   https://arxiv.org/abs/2006.11239
+# - Nichol & Dhariwal, "Improved Denoising Diffusion Probabilistic Models", ICML 2021
+#   https://arxiv.org/abs/2102.09672
+
 import torch 
 
 from config import DEVICE, IMAGE_CLASSES

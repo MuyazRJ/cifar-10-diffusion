@@ -1,21 +1,28 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+# Exponential Moving Average (EMA) wrapper for stabilising model inference.
+# EMA weights are updated during training and used at sampling time to produce
+# smoother, more reliable outputs than the raw optimiser weights.
+#
+# Reference:
+# - Polyak & Juditsky, "Acceleration of Stochastic Approximation by Averaging", 1992
+
 import torch
 import copy
 
 class EMA:
     def __init__(self, model, decay=0.9999):
-        # Keep a deep copy of the model as the EMA model
+        # Store a frozen copy of the model to accumulate the running average
         self.ema_model = copy.deepcopy(model)
         self.ema_model.requires_grad_(False)
-
         self.decay = decay
 
     @torch.no_grad()
     def update(self, model):
-        """
-        Update EMA weights using:
-        ema = decay * ema + (1 - decay) * weight
-        """
-        ema_params = dict(self.ema_model.named_parameters())
+        # Blend current weights into the EMA: ema = decay * ema + (1 - decay) * weight
+        ema_params   = dict(self.ema_model.named_parameters())
         model_params = dict(model.named_parameters())
 
         for name in ema_params.keys():

@@ -1,3 +1,8 @@
+# Author: Mohammed Rahman
+# Student ID: 10971320
+# University of Manchester — BSc Computer Science Final Year Project, 2026
+#
+
 import torch
 
 from config import DEVICE, NUM_DIFFUSION_STEPS, BETA_START, BETA_END, NUM_DIFFUSION_STEPS, LEARNING_RATE, EMA_DECAY, IMAGE_CLASSES  
