@@ -16,7 +16,14 @@ Usage in main.py
 """
 
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "models/cifar"))
+_CIFAR_ROOT = os.path.dirname(__file__)
+if _CIFAR_ROOT not in sys.path:
+    sys.path.insert(0, _CIFAR_ROOT)
+ 
+for _mod in list(sys.modules.keys()):
+    if _mod in ("config", "model", "diffusion", "utils") or \
+       _mod.startswith(("model.", "diffusion.", "utils.", "blocks.", "embeddings.", "data.")):
+        del sys.modules[_mod]
 
 import torch
 import numpy as np
